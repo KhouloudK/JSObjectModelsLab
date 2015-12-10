@@ -14,18 +14,61 @@
     });
 
     // TODO: Vérifier que la création d'objets SpeedCheck est Possible
-
+    test('Test de la création d objets SpeedCheck', function() {
+     notEqual(createSpeedCheck(), null, "constructor createSpeedCheck");
+     notEqual(createSpeedCheckFR(), null, "constructor createSpeedCheckFR");
+     notEqual(createSpeedCheckBE(), null, "constructor createSpeedCheckBE");
+   });
 
     // TODO: Vérifier que les objets créés directement avec creatSpeedCheck ne sont pas utilisables :
     // speed0 = creatSpeedCheck();
     // speed0.speed = 42; // SHOULD throw a SpeedCheckError.
     // speed0.licencePlate = '3-DFE-456'; // SOULD throw a SpeedCheckError.
+    test('Test les objets creatSpeedCheck ne sont pas utilisables', function() {
+
+    var speed0 = createSpeedCheck();
+    throws(function() { speed0.speed = 42; }, "speed SHOULD throw a SpeedCheckError");
+    throws(function() { speed0.licencePlate = 'LH-506-ME'; }, "licencePlate SHOULD throw a SpeedCheckError");
+    });
 
 
     // TODO: Vérifier que TOUTES les fonctionnalités de createSpeedCheckFR sont correctes (effects de bords, valeurs négatives, etc.) pour tous les attributs (speed et licencePlate)
+    test('Test SpeedCheckFR', function() {
+            var speed0 = createSpeedCheckFR();
+            var speed0 = createSpeedCheckBE();
+            equal(speed0.speed, 0, "vitesse de base 0");
+            speed0.speed = 90;
+            equal(speed0.speed, 90, "changement de vitesse 50");
+            throws(function() { speed0.speed = -90; }, "SHOULD throw a SpeedCheckError");
+            equal(speed0.speed, 90, "verification de changement de vitesse");
+            equal(speed0.infraction, false, "pas d 'infraction (50km/h)");
+            speed0.speed = 135;
+            equal(speed0.infraction, true, "vitesse(135km/h) superieur a 130 km/h ==>infraction");
+            equal(speed0.licencePlate, "???", "Plaque non reconnue");
+            speed0.licencePlate = "1-ABC-234";
+            equal(speed0.licencePlate, "1-ABC-234", "Plaque non reconnue. Vous avez de la chance.");
+            throws(function() { speed0.licencePlate = "NOTAPLAQUE"; }, "should throw an SpeedCheckError, plaque invalide");
+            equal(speed0.licencePlate, "1-ABC-234", "verification de changement de plaque");
+        });
 
     // TODO: Vérifier que TOUTES les fonctionnalités de createSpeedCheckBE sont correctes (effects de bords, valeurs négatives, etc.) pour tous les attributs (speed et licencePlate)
+   test('Test SpeedCheckBE', function() {
 
+            var speed0 = createSpeedCheckBE();
+            equal(speed0.speed, 0, "vitesse de base 0");
+            speed0.speed = 90;
+            equal(speed0.speed, 90, "changement de vitesse 50");
+            throws(function() { speed0.speed = -90; }, "SHOULD throw a SpeedCheckError");
+            equal(speed0.speed, 90, "verification de changement de vitesse");
+            equal(speed0.infraction, false, "pas d 'infraction (50km/h)");
+            speed0.speed = 125;
+            equal(speed0.infraction, true, "vitesse(125km/h) superieur a 120 km/h ==>infraction");
+            equal(speed0.licencePlate, "???", "Plaque non reconnue");
+            speed0.licencePlate = "1-ABC-234";
+            equal(speed0.licencePlate, "1-ABC-234", "Plaque non reconnue. Vous avez de la chance.");
+            throws(function() { speed0.licencePlate = "NOTAPLAQUE"; }, "should throw an SpeedCheckError, plaque invalide");
+            equal(speed0.licencePlate, "1-ABC-234", "verification de changement de plaque");
+});
 
     // TODO: Vérifier que la fonction toString() fonctionne bien.
     //  - chaine de caractère attentue pour une infracion (e.g. licencePlate === 'WD366MD' et  speed === 135):
@@ -33,18 +76,30 @@
     //  - chaine de caractère attendue pour sans infraction (e.g. licencePlate === 'WD366MD' et  speed === 105):
     //      "Véhicule WD366MD roule à 105 km/h. Ça va, circulez..."
 
+    test('Test de la fonction toString', function() {
+      expect(2);
+      var speed0 = createSpeedCheckFR();
+      var speed1 = createSpeedCheckBE();
+      speed0.speed = 105;
+      equal(speed0.infraction , false, 'Vitesse = '+ speed0.speed +' : Pas d\'infraction');
+      speed1.speed = 135;
+      equal(speed1.infraction , true, 'Vitesse = '+ speed1.speed +' : Infraction !!!');
 
+      /*  speed0.licencePlate = '???';
+      equal(speed0.licencePlate, 'Plaque non reconnue. Vous avez de la chance.');
+      */
+         });
 
 
     /*---------------------------------*/
     /*  PART TWO: The "Shapes" module  */
     /*---------------------------------*/
-        var roadAttr, amenityAttr, buildingAttr, naturalAttr;
+    var roadAttr, amenityAttr, buildingAttr, naturalAttr;
     module('Unit Testing The "Shapes" Module', {
       beforeEach: function(){
         roadAttr = JSON.parse('{ \
           "building": false, \
-          "highway": "Residential", \
+          "highway": "residential", \
           "_id": "-629863", \
           "nodes": [{ \
               "y": 369.0, \
@@ -121,21 +176,21 @@
           props.push(prop);
         }
       }
-      // Only 4 properties SHOULD be  visible
-      //{ id: [Function], toString: [Function], toSVGPath: [Function], getName: [Function] }
+      // Only 3 properties SHOULD be  visible
+      //{ id: [Function], toString: [Function], toSVGPath: [Function] }
       equal(props.length, 4, 'Only 4 properties SHOULD be  visible in objects created by "createShape"');
-      props.forEach(function(prop){
-        ok(prop === 'id' || prop === 'toString' || prop === 'toSvgPath' || 'getName', 'One of "id" "toString", "toSvgPath" or "getName"');
+       props.forEach(function(prop){
+          ok(prop === 'id' || prop === 'toString' || prop === 'toSvgPath' ||
+          'getName', 'One of "id" "toString", "toSvgPath" or "getName"');
+    });
+ });
+
+
+      test('Test the toSVGString method', function() {
+        expect(1);
+        var shape0 = window.Shapes.createShape(roadAttr);
+        equal(shape0.toSvgPath(), 'M 708 369 L 743 396', 'Should create a valid SVG PATH (google SVG PATH for details)');
       });
-
-    });
-
-
-    test('Test the toSVGString method', function() {
-      expect(1);
-      var shape0 = window.Shapes.createShape(roadAttr);
-      equal(shape0.toSvgPath(), 'M 708 369 L 743 396', 'Should create a valid SVG PATH (google SVG PATH for details)');
-    });
 
     test('Test the name accessor', function() {
       expect(1);
@@ -150,11 +205,11 @@
     });
 
     test('Test objects created with the createRoad function', function() {
-      expect(2);
-      var road = window.Shapes.createRoad(roadAttr);
-      ok(typeof road.getCategory === 'function', 'Object Created with "createRoad" Should have a getCategory function');
-      equal(road.getCategory(),'Residential', 'Should return the value corresponding to the "highway" property in the attributes');
-    });
+                expect(2);
+          var road = window.Shapes.createRoad(roadAttr);
+          ok(typeof road.getCategory === 'function', 'Object Created with "createRoad" Should have a getCategory function');
+          equal(road.getCategory(),'residential', 'Should return the value corresponding to the "highway" property in the attributes');
+        });
 
     test('Test the createAmenity function', function() {
       expect(1);
@@ -180,7 +235,7 @@
     });
 
 
-    test('Test the createAmenity function', function() {
+    test('Test the createNatural function', function() {
       expect(1);
       ok(typeof window.Shapes.createNatural !== 'undefined', 'The Shapes module sould expose a "createNatural" function');
     });
@@ -201,6 +256,9 @@
 
     // TODO Write the whole test module for testing with the app/data/eure.json file.
     var obj;
+    var objets;
+    var autres;
+    var objetShapes = {buildings:[], roads:[], amenities:[], naturals:[]};
     module('Asynchronous Unit Test Module', {
         setup: function() {
             stop();
@@ -208,7 +266,7 @@
             // You can load a resource before loaching the test...
             $.get('test.json').success(function(data){
                 obj = data;
-                start();
+              //  start();
             });
 
             // ... Or any asynchroneous task
@@ -216,17 +274,54 @@
             //     obj = {a:'OK', b:'KO'};
             //     start();
             // }, 1000);
+            $.get('data/eure.json').success(function(data){
+              objets = data;
+              autres = 0;
+              objetShapes = {buildings:[], roads:[], amenities:[], naturals:[]};
+              for (var i = 0; i < objets.length; i++){
+                if (objets[i].hasOwnProperty("building") && objets[i].building === true) {
+                  objetShapes.buildings.push(window.Shapes.createBuilding(objets[i]));
+                }
+                else if (objets[i].hasOwnProperty("amenity")){
+                  objetShapes.amenities.push(window.Shapes.createAmenity(objets[i]));
+                }
+                else if (objets[i].hasOwnProperty("highway")) {
+                  objetShapes.roads.push(window.Shapes.createRoad(objets[i]));
+                }
+                else if (objets[i].hasOwnProperty("natural")) {
+                  objetShapes.naturals.push(window.Shapes.createNatural(objets[i]));
+                }
+                else
+                  autres++;
+
+              }
+             start();
+           });
 
         }
     });
+    test('test nombre d\'objets', function(){
+         expect(2);
+        ok(objets.length !== 0, 'Longueur non nulle');
+          var result = objetShapes.buildings.length + objetShapes.amenities.length + objetShapes.roads.length + objetShapes.naturals.length + autres;
+          equal(objets.length, result, 'nombre objets');
+        });
 
-    test('test 1', function() {
-        equal(obj.a, 'OK', 'Message');
-        equal(obj.a+'KO', 'OKKO', 'Message');
-    });
+        test('test surface des buildings', function(){
+          expect(1);
+          var res = objetShapes.buildings[0].getArea();
+          for (var i=1 ; i < objetShapes.buildings.length ; i++) {
+            res += objetShapes.buildings[i].getArea();
+          }
+          ok(res !== 0, 'Somme surfaces non nulle');
+        });
 
-    test('test 2', function() {
-        equal(obj.a+obj.b, 'OKKO', 'FAil');
-    });
+        test('test 1', function() {
+            equal(obj.a, 'OK', 'Message');
+            equal(obj.a+'KO', 'OKKO', 'Message');
+        });
 
+        test('test 2', function() {
+            equal(obj.a+obj.b, 'OKKO', 'FAil');
+           });
 }());
